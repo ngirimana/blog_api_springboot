@@ -1,14 +1,12 @@
 package com.springbot.blog.controller;
 
-
 import com.springbot.blog.payload.PostDto;
 import com.springbot.blog.payload.PostResponse;
 import com.springbot.blog.service.PostService;
+import com.springbot.blog.utils.AppConstants;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -18,7 +16,6 @@ public class PostController {
     public PostController(PostService postService) {
         this.postService = postService;
     }
-
 
     /*
      * create post rest api
@@ -33,9 +30,12 @@ public class PostController {
      * get all posts
      */
     @GetMapping()
-    public PostResponse getAllPosts(@RequestParam(name = "pageNo", defaultValue = "0") int pageNo,
-                                    @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
-        return postService.getAllPosts(pageNo, pageSize);
+    public PostResponse getAllPosts(
+            @RequestParam(name = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int pageNo,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(name = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
+        return postService.getAllPosts(pageNo, pageSize, sortBy, sortDir);
     }
 
     /*

@@ -1,17 +1,24 @@
 package com.springbot.blog.service.impl;
 
 import com.springbot.blog.entity.Post;
+import com.springbot.blog.exception.ResourceNotFoundException;
 import com.springbot.blog.payload.PostDto;
+import com.springbot.blog.payload.PostResponse;
 import com.springbot.blog.repository.PostRepository;
 import com.springbot.blog.service.PostService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService {
-    private PostRepository postRepository;
+    private final PostRepository postRepository;
 
-//    @Autowired
+    // @Autowired
     public PostServiceImpl(PostRepository postRepository) {
         this.postRepository = postRepository;
     }
@@ -19,21 +26,79 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto createPost(PostDto postDto) {
 
-        Post post = new Post();
+        Post post = mapToEntity(postDto);
+        Post newPost = postRepository.save(post);
+
+        return mapToDto(newPost);
+    }
+
+    @Override
+    public PostResponse getAllPosts(int pageNo, int pageSize) {
+
+       Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        Page<Post> posts = postRepository.findAll(pageable);
+
+        // get content of page
+        List<Post> listOfPost = posts.getContent();
+
+        List<PostDto> content= listOfPost.stream().map(this::mapToDto).collect(Collectors.toList());
+        PostResponse postResponse = new PostResponse();
+        postResponse.setContent(content);
+        postResponse.setPageNo(posts.getNumber());
+        postResponse.setPageSize(posts.getSize());
+        postResponse.setTotalElements(posts.getTotalElements());
+        postResponse.setTotalPages(posts.getTotalPages());
+        postResponse.setLast(posts.isLast());
+
+        return postResponse;
+    }
+
+    @Override
+    public PostDto getPostById(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+        return mapToDto(post);
+    }
+
+    @Override
+    public PostDto updatePost(PostDto postDto, Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+
         post.setTitle(postDto.getTitle());
         post.setDescription(postDto.getDescription());
         post.setContent(postDto.getContent());
-        System.out.println(postDto.getTitle());
-        System.out.println(postDto.getDescription());
-        System.out.println(postDto.getContent());
-        Post newPost = postRepository.save(post);
 
-        PostDto postResponse = new PostDto();
-        postResponse.setId(newPost.getId());
-        postResponse.setTitle(newPost.getTitle());
-        postResponse.setDescription(newPost.getDescription());
-        postResponse.setContent(newPost.getContent());
+        Post updatedPost = postRepository.save(post);
+        return mapToDto(updatedPost);
+    }
 
-        return postResponse;
+    @Override
+    public void deletePostById(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+        postRepository.delete(post);
+    }
+
+    /*
+     * map entity to dto
+     */
+    private PostDto mapToDto(Post post) {
+        PostDto postDto = new PostDto();
+        postDto.setId(post.getId());
+        postDto.setTitle(post.getTitle());
+        postDto.setDescription(post.getDescription());
+        postDto.setContent(post.getContent());
+        return postDto;
+    }
+
+    /*
+     * map dto to entity
+     */
+    private Post mapToEntity(PostDto postDto) {
+        Post post = new Post();
+        post.setId(postDto.getId());
+        post.setTitle(postDto.getTitle());
+        post.setDescription(postDto.getDescription());
+        post.setContent(postDto.getContent());
+        return post;
     }
 }

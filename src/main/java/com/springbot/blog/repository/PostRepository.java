@@ -3,6 +3,5 @@ package com.springbot.blog.repository;
 import com.springbot.blog.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-
 public interface PostRepository extends JpaRepository<Post, Long> {
 }

@@ -1,6 +1,5 @@
 package com.springbot.blog.payload;
 
-
 import lombok.Data;
 
 @Data

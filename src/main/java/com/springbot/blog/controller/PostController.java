@@ -4,6 +4,10 @@ import com.springbot.blog.payload.PostDto;
 import com.springbot.blog.payload.PostResponse;
 import com.springbot.blog.service.PostService;
 import com.springbot.blog.utils.AppConstants;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +16,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole;
 
 @RestController
 @RequestMapping("/api/posts")
+@Tag(name = "CRUD REST APIs for Post Resource")
 public class PostController {
     private final PostService postService;
 
@@ -27,6 +31,9 @@ public class PostController {
      * create post rest api
      */
 
+    @Operation(summary = "Create Post REST API", description = "Create a new post REST API is used to create a new post and save it in the database.")
+    @ApiResponse(responseCode = "201", description = "Post created successfully")
+    @SecurityRequirement(name = "bearer Authentication")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<PostDto> createPost(@Valid @RequestBody PostDto postDto) {
@@ -36,6 +43,8 @@ public class PostController {
     /*
      * get all posts
      */
+    @Operation(summary = "Get All Posts REST API", description = "Get all posts REST API is used to retrieve all posts from the database.")
+    @ApiResponse(responseCode = "200", description = "Retrieved successfully")
     @GetMapping()
     public PostResponse getAllPosts(
             @RequestParam(name = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int pageNo,
@@ -48,6 +57,8 @@ public class PostController {
     /*
      * get post by id
      */
+    @Operation(summary = "Get Post By Id REST API", description = "Get post by id REST API is used to retrieve a post by its id from the database.")
+    @ApiResponse(responseCode = "200", description = "Retrieved successfully")
     @GetMapping("/{id}")
     public ResponseEntity<PostDto> getPostById(@PathVariable(name = "id") Long id) {
         return new ResponseEntity<>(postService.getPostById(id), HttpStatus.OK);
@@ -57,6 +68,9 @@ public class PostController {
      * update post rest api
      */
 
+    @Operation(summary = "Update Post REST API", description = "Update post REST API is used to update a post and save it in the database.")
+    @ApiResponse(responseCode = "200", description = "Updated successfully")
+    @SecurityRequirement(name = "bearer Authentication")
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<PostDto> updatePost(@Valid @RequestBody PostDto postDto, @PathVariable(name = "id") Long id) {
@@ -67,6 +81,9 @@ public class PostController {
     /*
      * delete post rest api
      */
+    @Operation(summary = "Delete Post REST API", description = "Delete post REST API is used to delete a post from the database.")
+    @ApiResponse(responseCode = "200", description = "Deleted successfully")
+    @SecurityRequirement(name = "bearer Authentication")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePost(@PathVariable(name = "id") Long id) {
@@ -76,8 +93,10 @@ public class PostController {
 
     /*
      * get all posts by category id
-     * http://localhost:8080/api/posts/category/1
+     *
      */
+    @Operation(summary = "Get All Posts By Category Id REST API", description = "Get all posts by category id REST API is used to retrieve all posts by category id from the database.")
+    @ApiResponse(responseCode = "200", description = "Retrieved successfully")
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<List<PostDto>> getPostsByCategoryId(
             @PathVariable(name = "categoryId") Long categoryId) {

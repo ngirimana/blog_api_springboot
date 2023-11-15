@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole;
 
 @RestController
@@ -70,5 +72,16 @@ public class PostController {
     public ResponseEntity<?> deletePost(@PathVariable(name = "id") Long id) {
         postService.deletePostById(id);
         return new ResponseEntity<>("Post entity deleted successfully", HttpStatus.OK);
+    }
+
+    /*
+     * get all posts by category id
+     * http://localhost:8080/api/posts/category/1
+     */
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<PostDto>> getPostsByCategoryId(
+            @PathVariable(name = "categoryId") Long categoryId) {
+        List<PostDto> postResponse = postService.getPostsByCategoryId(categoryId);
+        return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 }

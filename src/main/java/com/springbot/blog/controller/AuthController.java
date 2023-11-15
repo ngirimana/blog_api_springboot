@@ -1,6 +1,6 @@
 package com.springbot.blog.controller;
 
-
+import com.springbot.blog.payload.JwtAuthResponse;
 import com.springbot.blog.payload.LoginDto;
 import com.springbot.blog.payload.RegisterDto;
 import com.springbot.blog.service.AuthService;
@@ -20,18 +20,20 @@ public class AuthController {
         this.authService = authService;
     }
 
-     // Build the login API here
+    // Build the login API here
 
-    @PostMapping(value={"/login","/signin"})
-    public ResponseEntity<String> login( @RequestBody LoginDto loginDto) {
-        String response = authService.login(loginDto);
+    @PostMapping(value = { "/login", "/signin" })
+    public ResponseEntity<JwtAuthResponse> login(@RequestBody LoginDto loginDto) {
+        String token = authService.login(loginDto);
+        JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
+        jwtAuthResponse.setAccessToken(token);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(jwtAuthResponse);
     }
 
     // Build the register API here
 
-    @PostMapping(value={"/register","/signup"})
+    @PostMapping(value = { "/register", "/signup" })
     public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
         String response = authService.register(registerDto);
 
